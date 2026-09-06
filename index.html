@@ -1,0 +1,96 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>My Daily Word</title>
+<style>
+  :root { --bg: #f8f5f0; --card: #ffffff; --text: #222; --accent: #6b4f36; }
+  body.dark { --bg: #121212; --card: #1e1e1e; --text: #f0f0f0; --accent: #d4a373; }
+  body { background: var(--bg); color: var(--text); font-family: system-ui, sans-serif; margin:0; padding:20px; transition: 0.3s; }
+ .container { max-width: 600px; margin: auto; }
+  header { display:flex; justify-content:space-between; align-items:center; }
+  button#themeToggle { padding:8px 14px; border-radius:20px; border:1px solid var(--accent); background:var(--card); color:var(--text); cursor:pointer; }
+ .card { background:var(--card); padding:20px; border-radius:16px; margin-top:20px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
+ .verse { font-size:1.3em; line-height:1.6; font-style:italic; }
+ .ref { text-align:right; font-weight:bold; margin-top:10px; color:var(--accent); }
+  textarea { width:100%; height:150px; border-radius:12px; border:1px solid #ccc; padding:12px; font-size:1em; background:var(--bg); color:var(--text); box-sizing:border-box; }
+ .small { font-size:0.8em; opacity:0.7; margin-top:8px; }
+</style>
+</head>
+<body>
+<div class="container">
+  <header>
+    <h2>My Daily Word</h2>
+    <button id="themeToggle">🌙 Night</button>
+  </header>
+
+  <div class="card">
+    <div id="date" class="small"></div>
+    <p id="verseText" class="verse">Loading...</p>
+    <p id="verseRef" class="ref"></p>
+    <button id="newVerse" style="margin-top:10px; padding:8px 12px; border-radius:8px; border:none; background:var(--accent); color:white;">New Verse</button>
+  </div>
+
+  <div class="card">
+    <h3>My Notepad</h3>
+    <textarea id="notepad" placeholder="Write your thoughts, prayer, reflections for today..."></textarea>
+    <div class="small">Auto-saved on this device.</div>
+  </div>
+</div>
+
+<script>
+const verses = [
+  { text: "For I know the plans I have for you, declares the Lord, plans to prosper you and not to harm you, plans to give you hope and a future.", ref: "Jeremiah 29:11" },
+  { text: "The Lord is my shepherd, I lack nothing.", ref: "Psalm 23:1" },
+  { text: "I can do all this through him who gives me strength.", ref: "Philippians 4:13" },
+  { text: "Trust in the Lord with all your heart and lean not on your own understanding.", ref: "Proverbs 3:5" },
+  { text: "Be strong and courageous. Do not be afraid; do not be discouraged, for the Lord your God will be with you wherever you go.", ref: "Joshua 1:9" },
+  { text: "The Lord is my light and my salvation— whom shall I fear?", ref: "Psalm 27:1" }
+];
+
+const verseText = document.getElementById('verseText');
+const verseRef = document.getElementById('verseRef');
+const dateEl = document.getElementById('date');
+
+function loadDailyVerse() {
+  const today = new Date();
+  dateEl.textContent = today.toDateString();
+  const dayIndex = today.getDate() % verses.length;
+  const v = verses[dayIndex];
+  verseText.textContent = `"${v.text}"`;
+  verseRef.textContent = `- ${v.ref}`;
+}
+loadDailyVerse();
+
+document.getElementById('newVerse').onclick = () => {
+  const v = verses[Math.floor(Math.random()*verses.length)];
+  verseText.textContent = `"${v.text}"`;
+  verseRef.textContent = `- ${v.ref}`;
+};
+
+// Notepad
+const notepad = document.getElementById('notepad');
+notepad.value = localStorage.getItem('my-daily-notepad') || '';
+notepad.addEventListener('input', () => {
+  localStorage.setItem('my-daily-notepad', notepad.value);
+});
+
+// Day-Night Mode
+const toggle = document.getElementById('themeToggle');
+const isDark = localStorage.getItem('theme') === 'dark';
+if(isDark){ document.body.classList.add('dark'); toggle.textContent='☀️ Day'; }
+
+toggle.onclick = () => {
+  document.body.classList.toggle('dark');
+  const dark = document.body.classList.contains('dark');
+  localStorage.setItem('theme', dark? 'dark' : 'light');
+  toggle.textContent = dark? '☀️ Day' : '🌙 Night';
+};
+</script>
+</body>
+</html>
+After you commit, go to *Settings > Pages* in your repo and turn on GitHub Pages to make it a live website.
+
+Want me to add more Bible verses to it?
