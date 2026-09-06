@@ -1,15 +1,11 @@
 {
-  "My daily word": "My App",
-  "":MDW "MyApp",
-  "start_url": ".",
+  "name": "My Daily Word",
+  "short_name": "DailyWord",
+  "start_url": "/",
   "display": "standalone",
-  "background_color": "light blue",
-  "theme_color": "#000000",
-  "icons": [square 
-    {
-      "src": "icon.png",
-      "sizes": "512x512",
-      "type": "image/png"
-    }
+  "background_color": "#f8fafc",
+  "theme_color": "#0f172a",
+  "icons": [
+    { "src": "/assets/icon.svg", "sizes": "any", "type": "image/svg+xml" }
   ]
 }

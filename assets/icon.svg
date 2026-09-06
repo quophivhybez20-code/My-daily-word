@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="128" height="128" viewBox="0 0 128 128" role="img" aria-label="App icon">
+  <defs>
+    <linearGradient id="grad1" x1="0" x2="1">
+      <stop offset="0" stop-color="#06b6d4"/>
+      <stop offset="1" stop-color="#7c3aed"/>
+    </linearGradient>
+  </defs>
+  <rect width="128" height="128" rx="20" fill="url(#grad1)"/>
+  <text x="64" y="78" text-anchor="middle" font-family="Inter, Arial, sans-serif" font-size="50" fill="white" font-weight="700">W</text>
+</svg>
