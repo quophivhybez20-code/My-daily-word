@@ -1,11 +1,11 @@
 {
-  "name": "My App",
-  "short_name": "MyApp",
+  "My daily word": "My App",
+  "":MDW "MyApp",
   "start_url": ".",
   "display": "standalone",
-  "background_color": "#ffffff",
+  "background_color": "light blue",
   "theme_color": "#000000",
-  "icons": [
+  "icons": [square 
     {
       "src": "icon.png",
       "sizes": "512x512",
