@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Daily Word & Prayer App</title>
+    <style>
+        /* CSS Variables to easily handle Dark Mode toggling */
+        :root {
+            --bg-color: #f4f7f6;
+            --container-bg: #ffffff;
+            --text-color: #333333;
+            --heading-color: #2c3e50;
+            --border-color: #ecf0f1;
+            --verse-box-bg: #f8f9fa;
+            --verse-border: #3498db;
+            --input-border: #cccccc;
+            --li-bg: #fdfefe;
+            --li-border: #e2e8f0;
+        }
+
+        [data-theme="dark"] {
+            --bg-color: #121212;
+            --container-bg: #1e1e1e;
+            --text-color: #e0e0e0;
+            --heading-color: #ffffff;
+            --border-color: #333333;
+            --verse-box-bg: #2d2d2d;
+            --verse-border: #bb86fc;
+            --input-border: #444444;
+            --li-bg: #252525;
+            --li-border: #333333;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            transition: background-color 0.3s, color 0.3s;
+        }
+        .theme-toggle-container {
+            width: 100%;
+            max-width: 600px;
+            display: flex;
+            justify-content: flex-end;
+            margin-bottom: 10px;
+        }
+        .theme-btn {
+            background-color: #7f8c8d;
+            font-size: 14px;
+            padding: 8px 12px;
+        }
+        .container {
+            max-width: 600px;
+            width: 100%;
+            background: var(--container-bg);
+            padding: 25px;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+            margin-bottom: 20px;
+            transition: background-color 0.3s;
+            box-sizing: border-box;
+        }
+        h2 {
+            color: var(--heading-color);
+            margin-top: 0;
+            border-bottom: 2px solid var(--border-color);
+            padding-bottom: 10px;
+        }
+        .verse-box {
+            background-color: var(--verse-box-bg);
+            border-left: 4px solid var(--verse-border);
+            padding: 15px;
+            margin: 15px 0;
+            font-style: italic;
+            border-radius: 4px;
+        }
+        .reference {
+            font-weight: bold;
+            font-style: normal;
+            display: block;
+            margin-top: 8px;
+            color: var(--verse-border);
+        }
+        .input-group {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+        input[type="text"] {
+            flex: 1;
+            padding: 10px;
+            border: 1px solid var(--input-border);
+            background-color: var(--container-bg);
+            color: var(--text-color);
+            border-radius: 6px;
+            font-size: 16px;
+        }
+        button {
+            padding: 10px 15px;
+            background-color: #2ecc71;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: bold;
+        }
+        button:hover { opacity: 0.9; }
+        button.fetch-btn { background-color: #3498db; }
+        button.random-btn { background-color: #9b59b6; }
+        button.clear-btn { background-color: #e74c3c; font-size: 12px; padding: 5px 10px; }
+        
+        ul { list-style-type: none; padding: 0; }
+        li {
+            background: var(--li-bg);
+            padding: 12px;
+            border: 1px solid var(--li-border);
+            border-radius: 6px;
+            margin-bottom: 8px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 10px;
+        }
+        .answered-text {
+            text-decoration: line-through;
+            color: #7f8c8d;
+        }
+        .action-btns {
+            display: flex;
+            gap: 5px;
+        }
+        .action-btns button {
+            font-size: 12px;
+            padding: 4px 8px;
+        }
+        .done-btn { background-color: #2ecc71; }
+        .del-btn { background-color: #e74c3c; }
+    </style>
+</head>
+<body>
+
+    <!-- THEME TOGGLE SWITCH -->
+    <div class="theme-toggle-container">
+        <button class="theme-btn" onclick="toggleTheme()" id="themeBtn">🌙 Dark Mode</button>
+    </div>
+
+    <!-- BIBLE VERSE SECTION -->
+    <div class="container">
+        <h2>📖 Word of the Day</h2>
+        <div class="input-group">
+            <input type="text" id="verseInput" placeholder="Enter verse (e.g., John 3:16)">
+            <button class="fetch-btn" onclick="loadVerse()">Get Verse</button>
+            <button class="random-btn" onclick="loadRandomVerse()">🎲 Random</button>
+        </div>
+        <div class="verse-box">
+            <span id="verseText">Loading scripture...</span>
+            <span id="verseReference" class="reference"></span>
+        </div>
+    </div>
+
+    <!-- PRAYER LIST SECTION -->
+    <div class="container">
+        <h2>🙏 My Prayer Journal</h2>
+        <div class="input-group">
+            <input type="text" id="prayerInput" placeholder="What are you praying for today?">
+            <button onclick="handleSavePrayer()">Add Prayer</button>
+        </div>
+        <ul id="prayerList"></ul>
+        <button class="clear-btn" id="clearAllBtn" onclick="clearAllPrayers()" style="display:none;">Clear All Prayers</button>
+    </div>
+
+    <script>
+        // ==========================================
+        // 1. RANDOM & TARGETED BIBLE VERSE LOGIC
+        // ==========================================
+        
+        // List of encouraging fallback references for the random generator
+        const popularVerses = [
+            "John 3:16", "Psalm 23:1", "Romans 8:28", "Philippians 4:13", 
+            "Proverbs 3:5", "Isaiah 41:10", "Matthew 6:33", "Joshua 1:9",
+            "Romans 12:2", "Psalm 46:1", "Galatians 5:22", "Jeremiah 29:11"
+        ];
+
+        async function loadVerse(reference = "") {
+            const textElement = document.getElementById("verseText");
+            const refElement = document.getElementById("verseReference");
+            
+            if (!reference) {
+                reference = document.getElementById("verseInput").value.trim() || "John 3:16";
+            }
+            
+            textElement.innerText = "Loading scripture...";
+            refElement.innerText = "";
+
+            try {
+                const response = await fetch(`https://bible-api.com{encodeURIComponent(reference)}`);
+                if (!response.ok) throw new Error("Verse not found");
+                
+                const data = await response.json();
+                textElement.innerText = `"${data.text.trim()}"`;
+                refElement.innerText = `— ${data.reference}`;
+            } catch (error) {
+                textElement.innerText = "Could not find that verse. Please check your spelling (e.g., 'Psalm 23:1').";
+                refElement.innerText = "";
+            }
+        }
+
+        function loadRandomVerse() {
+            // Selects a random string item from our array pool
+            const randomIndex = Math.floor(Math.random() * popularVerses.length);
+            const randomVerse = popularVerses[randomIndex];
+            document.getElementById("verseInput").value = randomVerse;
+            loadVerse(randomVerse);
+        }
+
+        // ==========================================
+        // 2. PRAYER LIST LOGIC WITH "ANSWERED" SWITCH
+        // ==========================================
+        function handleSavePrayer() {
+            const prayerInput = document.getElementById("prayerInput");
+            const text = prayerInput.value.trim();
+            if (text === "") return;
+
+            let prayers = JSON.parse(localStorage.getItem('userPrayers')) || [];
+            
+            const newPrayer = {
+                id: Date.now(),
+                text: text,
+                dateAdded: new Date().toLocaleDateString(),
+                answered: false // Track state
+            };
+            
+            prayers.push(newPrayer);
+            localStorage.setItem('userPrayers', JSON.stringify(prayers));
+            prayerInput.value = ""; 
+            displayPrayers();
+        }
+
+        function toggleAnswered(id) {
+            let prayers = JSON.parse(localStorage.getItem('userPrayers')) || [];
+            prayers = prayers.map(prayer => {
+                if (prayer.id === id) prayer.answered = !prayer.answered;
+                return prayer;
+            });
+            localStorage.setItem('userPrayers', JSON.stringify(prayers));
+            displayPrayers();
+        }
+
+        function deleteSinglePrayer(id) {
+            let prayers = JSON.parse(localStorage.getItem('userPrayers')) || [];
+            prayers = prayers.filter(prayer => prayer.id !== id);
+            localStorage.setItem('userPrayers', JSON.stringify(prayers));
+            displayPrayers();
+        }
+
+        function displayPrayers() {
+            const listElement = document.getElementById("prayerList");
+            const clearBtn = document.getElementById("clearAllBtn");
+            const prayers = JSON.parse(localStorage.getItem('userPrayers')) || [];
+            
+            listElement.innerHTML = ""; 
+
+            if (prayers.length === 0) {
+                listElement.innerHTML = "<li>No prayers added yet.</li>";
+                clearBtn.style.display = "none";
+                return;
+            }
+
+            clearBtn.style.display = "block";
+
+            prayers.forEach(prayer => {
+                const li = document.createElement("li");
+
+                
